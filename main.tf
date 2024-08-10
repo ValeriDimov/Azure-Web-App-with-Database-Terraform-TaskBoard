@@ -12,12 +12,12 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "arg" {
-  name     = "TaskBoardRG"
-  location = "North Europe"
+  name     = var.resource_group_name
+  location = var.resource_group_location
 }
 
 resource "azurerm_service_plan" "asp" {
-  name                = "TaskBoardSP"
+  name                = var.app_service_plan_name
   resource_group_name = azurerm_resource_group.arg.name
   location            = azurerm_resource_group.arg.location
   os_type             = "Linux"
@@ -25,7 +25,7 @@ resource "azurerm_service_plan" "asp" {
 }
 
 resource "azurerm_linux_web_app" "alwa" {
-  name                = "TaskBoardkWebApp"
+  name                = var.app_service_name
   resource_group_name = azurerm_resource_group.arg.name
   location            = azurerm_service_plan.asp.location
   service_plan_id     = azurerm_service_plan.asp.id
@@ -45,16 +45,16 @@ resource "azurerm_linux_web_app" "alwa" {
 }
 
 resource "azurerm_mssql_server" "sql" {
-  name                         = "taskboard-sql-001"
+  name                         = var.sql_server_name
   resource_group_name          = azurerm_resource_group.arg.name
   location                     = azurerm_resource_group.arg.location
   version                      = "12.0"
-  administrator_login          = "user01"
-  administrator_login_password = "@Aa123456789!"
+  administrator_login          = var.sql_admin_login
+  administrator_login_password = var.sql_admin_password
 }
 
 resource "azurerm_mssql_database" "db" {
-  name           = "TaskBoardSQLDb"
+  name           = var.sql_database_name
   server_id      = azurerm_mssql_server.sql.id
   collation      = "SQL_Latin1_General_CP1_CI_AS"
   license_type   = "LicenseIncluded"
@@ -63,7 +63,7 @@ resource "azurerm_mssql_database" "db" {
 }
 
 resource "azurerm_mssql_firewall_rule" "firewallrule" {
-  name             = "TaskBoardFirewallRule"
+  name             = var.firewall_rule_name
   server_id        = azurerm_mssql_server.sql.id
   start_ip_address = "0.0.0.0"
   end_ip_address   = "0.0.0.0"
@@ -71,8 +71,7 @@ resource "azurerm_mssql_firewall_rule" "firewallrule" {
 
 resource "azurerm_app_service_source_control" "aassc" {
   app_id                 = azurerm_linux_web_app.alwa.id
-  repo_url               = "https://github.com/ValeriDimov/Azure-Web-App-with-Database-Terraform-TaskBoard"
+  repo_url               = var.repo_URL
   branch                 = "main"
-
   use_manual_integration = true
 }
