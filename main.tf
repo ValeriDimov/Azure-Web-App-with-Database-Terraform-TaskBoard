@@ -45,7 +45,7 @@ resource "azurerm_linux_web_app" "alwa" {
 }
 
 resource "azurerm_mssql_server" "sql" {
-  name                         = "TaksBoardSQL"
+  name                         = "taskboard-sql-001"
   resource_group_name          = azurerm_resource_group.arg.name
   location                     = azurerm_resource_group.arg.location
   version                      = "12.0"
@@ -73,5 +73,6 @@ resource "azurerm_app_service_source_control" "aassc" {
   app_id                 = azurerm_linux_web_app.alwa.id
   repo_url               = "https://github.com/ValeriDimov/Azure-Web-App-with-Database-Terraform-TaskBoard"
   branch                 = "main"
-  use_manual_integration = false
+
+  use_manual_integration = true
 }
